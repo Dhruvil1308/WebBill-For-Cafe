@@ -9,6 +9,8 @@ import { Trash2, Plus, Minus, Printer, Store, ShoppingBag } from 'lucide-react'
 import { toast } from 'sonner'
 import type { OrderType, PaymentMethod } from '@/store/cartStore'
 import { ThermalReceipt } from './ThermalReceipt'
+import { printThermalReceipt, PrintBillData } from '@/lib/epsonPrinter'
+import { format } from 'date-fns'
 
 export function CartPanel() {
   const cart = useCartStore()
@@ -90,7 +92,54 @@ export function CartPanel() {
 
       const savedBill = await res.json()
       setLastSavedBill(savedBill)
-      setIsReadyToPrint(true)
+      
+      // EPSON ePOS INTEGRATION
+      const epsonIp = localStorage.getItem('epson_printer_ip')
+      
+      if (epsonIp) {
+        // Attempt direct thermal printing over IP
+        toast.loading('Sending to Epson printer...', { id: 'epson-print' })
+        
+        const printData: PrintBillData = {
+          cafeName: cafeDetails ? cafeDetails.name : "WebBill Cafe",
+          cafeAddress: cafeDetails?.address,
+          cafePhone: cafeDetails?.phone,
+          cafeGst: cafeDetails?.gstNumber,
+          orderType: payload.orderType,
+          date: format(new Date(), 'dd/MM/yyyy'),
+          time: format(new Date(), 'HH:mm'),
+          customerName: payload.customerName,
+          billNumber: savedBill.billNumber,
+          items: payload.items.map((i: any) => ({
+            name: i.variantName ? `${i.name} - ${i.variantName}` : (cart.items.find(ci => ci.menuItemId === i.menuItemId)?.name || 'Item'),
+            qty: i.quantity,
+            price: Number(i.price),
+            amt: Number(i.subtotal)
+          })),
+          subtotal: payload.subtotal,
+          gstAmount: payload.gstAmount,
+          total: payload.total,
+          paymentMethod: payload.paymentMethod
+        }
+        
+        const printResult = await printThermalReceipt(epsonIp, printData)
+        
+        if (printResult.success) {
+          toast.success('Bill printed successfully via Epson POS!', { id: 'epson-print' })
+          cart.clearCart()
+          setLastSavedBill(null)
+          setIsCheckingOut(false)
+          return
+        } else {
+          toast.error(`Epson Print Failed: ${printResult.error}. Falling back to browser print.`, { id: 'epson-print' })
+          // Fallback to ReactToPrint
+          setIsReadyToPrint(true)
+        }
+      } else {
+        // No IP configured, use fallback browser print dialog
+        setIsReadyToPrint(true)
+      }
+      
     } catch (err: any) {
       toast.error(err.message || 'Checkout failed')
     } finally {

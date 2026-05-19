@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans, Inter } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 import { Toaster } from 'sonner'
 
@@ -43,6 +44,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${plusJakartaSans.variable} font-body bg-white text-gray-900 antialiased`}
       >
+        <Script src="/epos-2.27.0.js" strategy="beforeInteractive" />
         {children}
         <Toaster position="top-center" richColors />
       </body>

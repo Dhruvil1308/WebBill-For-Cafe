@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Store, Phone, MapPin, Receipt, Loader2, Check, FileText } from 'lucide-react'
+import { Store, Phone, MapPin, Receipt, Loader2, Check, FileText, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function CafeSetupPage() {
@@ -10,6 +10,7 @@ export default function CafeSetupPage() {
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
   const [logoUrl, setLogoUrl] = useState('')
+  const [printerIp, setPrinterIp] = useState('')
   const [logoUploading, setLogoUploading] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -37,6 +38,11 @@ export default function CafeSetupPage() {
         setIsLoading(false)
       }
     }
+    
+    // Load local hardware settings
+    const savedIp = localStorage.getItem('epson_printer_ip')
+    if (savedIp) setPrinterIp(savedIp)
+    
     fetchCafe()
   }, [])
 
@@ -104,6 +110,13 @@ export default function CafeSetupPage() {
       toast.error('Connection error occurred while saving details')
     } finally {
       setIsSaving(false)
+    }
+    
+    // Save local hardware settings
+    if (printerIp.trim()) {
+      localStorage.setItem('epson_printer_ip', printerIp.trim())
+    } else {
+      localStorage.removeItem('epson_printer_ip')
     }
   }
 
@@ -346,6 +359,27 @@ export default function CafeSetupPage() {
                   />
                   <p className="text-[11px] text-gray-400 mt-1">PNG, JPG or WEBP up to 500KB. Will be displayed on receipts.</p>
                 </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-gray-100 pb-2">
+              <div className="flex items-center gap-2 mb-4">
+                <Printer size={18} className="text-gray-400" />
+                <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">Hardware Configuration</h3>
+              </div>
+              
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Epson Printer IP (Local Network)</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    className="w-full h-10 px-3 rounded-xl border border-gray-200 transition-all duration-200 outline-none text-sm bg-gray-50 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                    placeholder="e.g. 192.168.1.100"
+                    value={printerIp}
+                    onChange={(e) => setPrinterIp(e.target.value)}
+                  />
+                </div>
+                <p className="text-[11px] text-gray-400">If set, bills will automatically print to this IP via Epson ePOS SDK. Specific to this device.</p>
               </div>
             </div>
 
