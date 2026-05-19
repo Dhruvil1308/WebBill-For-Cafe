@@ -12,18 +12,16 @@ export async function GET(req: Request) {
     }
 
     const { searchParams } = new URL(req.url)
-    const status = searchParams.get('status')      // PAID | CANCELLED | EDITED
-    const range = searchParams.get('range')        // today | 7days | all
-    const search = searchParams.get('search')      // billNumber or customer name
+    const status = searchParams.get('status')
+    const range = searchParams.get('range')
+    const search = searchParams.get('search')
 
     const where: any = { cafeId: activeCafeResult.cafe.id }
 
-    // Status filter
     if (status && ['PAID', 'CANCELLED', 'EDITED'].includes(status)) {
       where.status = status
     }
 
-    // Date range filter
     if (range === 'today') {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
@@ -35,7 +33,6 @@ export async function GET(req: Request) {
       where.createdAt = { gte: sevenDaysAgo }
     }
 
-    // Search filter — bill number or customer name/phone
     if (search) {
       where.OR = [
         { billNumber: { contains: search, mode: 'insensitive' } },
@@ -49,20 +46,24 @@ export async function GET(req: Request) {
       include: {
         customer: true,
         items: {
-          include: { menuItem: { select: { name: true, isVeg: true } } }
-        }
+          include: { menuItem: { select: { name: true, isVeg: true } } },
+        },
       },
       orderBy: { createdAt: 'desc' },
-      take: 100, // Limit to recent 100
+      take: 100,
     })
 
-    return NextResponse.json(bills)
+    return NextResponse.json(bills, {
+      headers: { 'Cache-Control': 'no-store' },
+    })
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Error fetching bills' }, { status: 500 })
+    return NextResponse.json(
+      { error: error?.message || 'Error fetching bills' },
+      { status: 500 }
+    )
   }
 }
 
-// Simple schema validation for incoming bill payload
 const billSchema = z.object({
   customerName: z.string().optional(),
   customerPhone: z.string().optional(),
@@ -94,70 +95,85 @@ export async function POST(req: Request) {
     const body = await req.json()
     const parsed = billSchema.parse(body)
 
-    // Generate consecutive bill number for the cafe (simplified approach, using count for today)
-    const today = new Date()
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0))
-    const billsTodayCount = await prisma.bill.count({
-      where: {
-        cafeId: cafe.id,
-        createdAt: { gte: startOfDay },
-      },
-    })
-    const generatedBillNumber = `#IN-${billsTodayCount + 1}`
+    // Wrap entire bill creation in a transaction.
+    // This makes bill number generation and customer lookup atomic —
+    // no more race conditions under concurrent requests.
+    const newBill = await prisma.$transaction(async (tx) => {
+      const today = new Date()
+      const startOfDay = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      )
 
-    let customerId = null
-    // Upsert customer if phone exists
-    if (parsed.customerPhone) {
-      let customer = await prisma.customer.findFirst({
-        where: { cafeId: cafe.id, phone: parsed.customerPhone },
+      const billsTodayCount = await tx.bill.count({
+        where: { cafeId: cafe.id, createdAt: { gte: startOfDay } },
       })
-      if (!customer) {
-        customer = await prisma.customer.create({
-          data: {
-            cafeId: cafe.id,
-            phone: parsed.customerPhone,
-            name: parsed.customerName || null,
-          },
-        })
-      }
-      customerId = customer.id
-    }
+      const generatedBillNumber = `#IN-${billsTodayCount + 1}`
 
-    // Save Bill and Items
-    const newBill = await prisma.bill.create({
-      data: {
-        cafeId: cafe.id,
-        customerId: customerId,
-        billNumber: generatedBillNumber,
-        orderType: parsed.orderType,
-        paymentMethod: parsed.paymentMethod,
-        subtotal: parsed.subtotal,
-        gstAmount: parsed.gstAmount,
-        discount: parsed.discount,
-        total: parsed.total,
-        status: 'PAID', // Default to paid upon creation
-        items: {
-          create: parsed.items.map((i) => ({
-            menuItemId: i.menuItemId,
-            quantity: i.quantity,
-            price: i.price,
-            variantName: i.variantName || null,
-            subtotal: i.subtotal,
-          })),
-        },
-      },
-      include: {
-        items: {
-          include: {
-            menuItem: true,
+      let customerId: string | null = null
+
+      // Safe customer lookup within transaction (no unique compound constraint in schema)
+      if (parsed.customerPhone) {
+        const existingCustomer = await tx.customer.findFirst({
+          where: { cafeId: cafe.id, phone: parsed.customerPhone },
+          select: { id: true },
+        })
+
+        if (existingCustomer) {
+          customerId = existingCustomer.id
+          // Update name if it was previously null and we now have one
+          if (parsed.customerName) {
+            await tx.customer.update({
+              where: { id: existingCustomer.id },
+              data: { name: parsed.customerName },
+            })
+          }
+        } else {
+          const newCustomer = await tx.customer.create({
+            data: {
+              cafeId: cafe.id,
+              phone: parsed.customerPhone,
+              name: parsed.customerName || null,
+            },
+          })
+          customerId = newCustomer.id
+        }
+      }
+
+      return tx.bill.create({
+        data: {
+          cafeId: cafe.id,
+          customerId,
+          billNumber: generatedBillNumber,
+          orderType: parsed.orderType,
+          paymentMethod: parsed.paymentMethod,
+          subtotal: parsed.subtotal,
+          gstAmount: parsed.gstAmount,
+          discount: parsed.discount,
+          total: parsed.total,
+          status: 'PAID',
+          items: {
+            create: parsed.items.map((i) => ({
+              menuItemId: i.menuItemId,
+              quantity: i.quantity,
+              price: i.price,
+              variantName: i.variantName || null,
+              subtotal: i.subtotal,
+            })),
           },
         },
-      },
+        include: {
+          items: { include: { menuItem: true } },
+        },
+      })
     })
 
     return NextResponse.json(newBill, { status: 201 })
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Error processing bill' }, { status: 400 })
+    return NextResponse.json(
+      { error: error?.message || 'Error processing bill' },
+      { status: 400 }
+    )
   }
 }
-

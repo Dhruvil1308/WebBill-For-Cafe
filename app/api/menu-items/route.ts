@@ -3,7 +3,8 @@ import { getActiveCafe } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { z } from 'zod'
 
-export const dynamic = 'force-dynamic'
+// Removed `force-dynamic` — this route now benefits from Vercel Edge Cache headers
+// set in next.config.ts (s-maxage=30, stale-while-revalidate=60)
 
 const menuItemCreateSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -23,34 +24,31 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url)
     const categoryId = searchParams.get('categoryId')
-    const categoryName = searchParams.get('categoryName')
 
-    const where: any = {
-      cafeId: activeCafeResult.cafe.id,
-    }
-
-    if (categoryId) {
-      where.categoryId = categoryId
-    } else if (categoryName && categoryName !== 'All') {
-      where.category = {
-        name: categoryName,
-      }
-    }
+    const where: any = { cafeId: activeCafeResult.cafe.id }
+    if (categoryId) where.categoryId = categoryId
 
     const items = await prisma.menuItem.findMany({
       where,
-      include: {
-        category: true,
-        variants: true,
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        isVeg: true,
+        isAvailable: true,
+        imageUrl: true,
+        categoryId: true,
+        category: { select: { id: true, name: true } },
       },
-      orderBy: {
-        name: 'asc',
-      },
+      orderBy: { name: 'asc' },
     })
 
     return NextResponse.json(items)
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Error fetching menu items' }, { status: 500 })
+    return NextResponse.json(
+      { error: error?.message || 'Error fetching menu items' },
+      { status: 500 }
+    )
   }
 }
 
@@ -64,12 +62,8 @@ export async function POST(req: Request) {
     const body = await req.json()
     const parsed = menuItemCreateSchema.parse(body)
 
-    // Verify category belongs to this cafe
     const category = await prisma.category.findFirst({
-      where: {
-        id: parsed.categoryId,
-        cafeId: activeCafeResult.cafe.id,
-      },
+      where: { id: parsed.categoryId, cafeId: activeCafeResult.cafe.id },
     })
 
     if (!category) {
@@ -86,13 +80,14 @@ export async function POST(req: Request) {
         isAvailable: parsed.isAvailable,
         imageUrl: parsed.imageUrl,
       },
-      include: {
-        category: true,
-      },
+      include: { category: true },
     })
 
     return NextResponse.json(newItem, { status: 201 })
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Error creating menu item' }, { status: 400 })
+    return NextResponse.json(
+      { error: error?.message || 'Error creating menu item' },
+      { status: 400 }
+    )
   }
 }

@@ -4,9 +4,24 @@ import { Pool } from 'pg'
 
 const prismaClientSingleton = () => {
   const connectionString = process.env.DATABASE_URL
-  const pool = new Pool({ connectionString })
+
+  // Limit pool size to prevent connection exhaustion in serverless environments.
+  // Vercel spins up many function instances — without limits, each could open
+  // its own pool and overwhelm the Supabase connection limit.
+  const pool = new Pool({
+    connectionString,
+    max: 10,                    // Max concurrent connections per pool
+    idleTimeoutMillis: 30_000,  // Close idle connections after 30s
+    connectionTimeoutMillis: 5_000, // Fail fast if DB is unreachable
+  })
+
   const adapter = new PrismaPg(pool)
-  return new PrismaClient({ adapter })
+  return new PrismaClient({
+    adapter,
+    log: process.env.NODE_ENV === 'development'
+      ? ['warn', 'error']
+      : ['error'],
+  })
 }
 
 declare global {

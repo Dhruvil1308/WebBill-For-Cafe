@@ -49,8 +49,8 @@ export default function MenuManagementPage() {
       try {
         setIsLoading(true)
         const [itemsRes, catsRes] = await Promise.all([
-          fetch(`/api/menu-items?t=${Date.now()}`, { cache: 'no-store' }),
-          fetch(`/api/categories?t=${Date.now()}`, { cache: 'no-store' })
+          fetch('/api/menu-items'),
+          fetch('/api/categories')
         ])
 
         if (itemsRes.ok && catsRes.ok) {

@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server'
 import { getActiveCafe } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 
-export const dynamic = 'force-dynamic'
+// Removed `force-dynamic` — Vercel Edge Cache headers in next.config.ts
+// provide s-maxage=60, stale-while-revalidate=120 for this route
 
 export async function GET() {
   try {
@@ -14,12 +15,21 @@ export async function GET() {
     const categories = await prisma.category.findMany({
       where: { cafeId: activeCafeResult.cafe.id },
       orderBy: { sortOrder: 'asc' },
-      include: { _count: { select: { items: true } } }
+      select: {
+        id: true,
+        name: true,
+        sortOrder: true,
+        isActive: true,
+        _count: { select: { items: true } },
+      },
     })
 
     return NextResponse.json(categories)
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Error fetching categories' }, { status: 500 })
+    return NextResponse.json(
+      { error: error?.message || 'Error fetching categories' },
+      { status: 500 }
+    )
   }
 }
 
@@ -34,15 +44,18 @@ export async function POST(req: Request) {
     const { name } = body
 
     if (!name?.trim()) {
-      return NextResponse.json({ error: 'Category name is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Category name is required' },
+        { status: 400 }
+      )
     }
 
-    // Auto-assign next sort order
-    const lastCategory = await prisma.category.findFirst({
+    // Get next sort order in one step using aggregate
+    const maxOrder = await prisma.category.aggregate({
       where: { cafeId: activeCafeResult.cafe.id },
-      orderBy: { sortOrder: 'desc' },
+      _max: { sortOrder: true },
     })
-    const nextSortOrder = (lastCategory?.sortOrder ?? 0) + 1
+    const nextSortOrder = (maxOrder._max.sortOrder ?? 0) + 1
 
     const newCategory = await prisma.category.create({
       data: {
@@ -51,12 +64,20 @@ export async function POST(req: Request) {
         sortOrder: nextSortOrder,
         isActive: true,
       },
-      include: { _count: { select: { items: true } } }
+      select: {
+        id: true,
+        name: true,
+        sortOrder: true,
+        isActive: true,
+        _count: { select: { items: true } },
+      },
     })
 
     return NextResponse.json(newCategory, { status: 201 })
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Error creating category' }, { status: 500 })
+    return NextResponse.json(
+      { error: error?.message || 'Error creating category' },
+      { status: 500 }
+    )
   }
 }
-
