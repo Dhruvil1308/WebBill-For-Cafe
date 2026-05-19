@@ -9,6 +9,7 @@ interface MenuItem {
   price: number | string
   isVeg: boolean
   isAvailable: boolean
+  imageUrl?: string | null
   category: {
     id: string
     name: string

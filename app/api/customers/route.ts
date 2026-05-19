@@ -35,15 +35,15 @@ export async function GET(req: Request) {
     })
 
     // Add computed stats to each customer
-    const customersWithStats = customers.map(c => ({
+    const customersWithStats = customers.map((c: any) => ({
       id: c.id,
       name: c.name,
       phone: c.phone,
       createdAt: c.createdAt,
       visitCount: c._count.bills,
-      totalSpent: c.bills.reduce((sum, b) => sum + Number(b.total), 0),
+      totalSpent: c.bills.reduce((sum: number, b: any) => sum + Number(b.total), 0),
       lastVisit: c.bills.length > 0
-        ? c.bills.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
+        ? c.bills.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt
         : null,
     }))
 
