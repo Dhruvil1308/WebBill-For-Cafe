@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+// ─── SUPER ADMIN ───────────────────────────────────────────────
+
+model SuperAdmin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+// ─── CLIENT (Cafe Owner) ───────────────────────────────────────
+
+model Client {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  name         String
+  phone        String?
+  isActive     Boolean      @default(true)
+  plan         Plan         @default(BASIC)
+  subscriptionEnds DateTime?
+  createdAt    DateTime     @default(now())
+  cafe         Cafe?
+}
+
+enum Plan {
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+// ─── CAFE ──────────────────────────────────────────────────────
+
+model Cafe {
+  id          String      @id @default(uuid())
+  clientId    String      @unique
+  client      Client      @relation(fields: [clientId], references: [id])
+  name        String
+  address     String?
+  phone       String?
+  gstNumber   String?
+  logoUrl     String?
+  currency    String      @default("INR")
+  createdAt   DateTime    @default(now())
+
+  categories  Category[]
+  menuItems   MenuItem[]
+  bills       Bill[]
+  customers   Customer[]
+}
+
+// ─── CATEGORY ─────────────────────────────────────────────────
+
+model Category {
+  id        String     @id @default(uuid())
+  cafeId    String
+  cafe      Cafe       @relation(fields: [cafeId], references: [id])
+  name      String
+  sortOrder Int        @default(0)
+  isActive  Boolean    @default(true)
+  items     MenuItem[]
+  createdAt DateTime   @default(now())
+}
+
+// ─── MENU ITEM ────────────────────────────────────────────────
+
+model MenuItem {
+  id          String      @id @default(uuid())
+  cafeId      String
+  cafe        Cafe        @relation(fields: [cafeId], references: [id])
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  name        String
+  price       Decimal     @db.Decimal(10, 2)
+  imageUrl    String?
+  isVeg       Boolean     @default(true)
+  isAvailable Boolean     @default(true)
+  variants    Variant[]
+  billItems   BillItem[]
+  createdAt   DateTime    @default(now())
+}
+
+model Variant {
+  id         String   @id @default(uuid())
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  name       String   // e.g. "Large", "Small"
+  priceAdd   Decimal  @default(0) @db.Decimal(10, 2)
+}
+
+// ─── CUSTOMER ────────────────────────────────────────────────
+
+model Customer {
+  id        String   @id @default(uuid())
+  cafeId    String
+  cafe      Cafe     @relation(fields: [cafeId], references: [id])
+  name      String?
+  phone     String?
+  bills     Bill[]
+  createdAt DateTime @default(now())
+}
+
+// ─── BILL ────────────────────────────────────────────────────
+
+model Bill {
+  id            String        @id @default(uuid())
+  cafeId        String
+  cafe          Cafe          @relation(fields: [cafeId], references: [id])
+  customerId    String?
+  customer      Customer?     @relation(fields: [customerId], references: [id])
+  billNumber    String
+  orderType     OrderType     @default(DINE_IN)
+  paymentMethod PaymentMethod @default(CASH)
+  subtotal      Decimal       @db.Decimal(10, 2)
+  gstAmount     Decimal       @default(0) @db.Decimal(10, 2)
+  discount      Decimal       @default(0) @db.Decimal(10, 2)
+  total         Decimal       @db.Decimal(10, 2)
+  status        BillStatus    @default(PAID)
+  note          String?
+  items         BillItem[]
+  createdAt     DateTime      @default(now())
+}
+
+enum OrderType {
+  DINE_IN
+  TAKEAWAY
+  ONLINE_ZOMATO
+  ONLINE_SWIGGY
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  CARD
+  WALLET
+}
+
+enum BillStatus {
+  PAID
+  CANCELLED
+  EDITED
+}
+
+// ─── BILL ITEM ───────────────────────────────────────────────
+
+model BillItem {
+  id          String   @id @default(uuid())
+  billId      String
+  bill        Bill     @relation(fields: [billId], references: [id])
+  menuItemId  String
+  menuItem    MenuItem @relation(fields: [menuItemId], references: [id])
+  quantity    Int
+  price       Decimal  @db.Decimal(10, 2)
+  variantName String?
+  subtotal    Decimal  @db.Decimal(10, 2)
+}
