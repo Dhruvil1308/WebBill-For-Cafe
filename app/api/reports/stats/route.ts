@@ -141,7 +141,7 @@ export async function GET(req: Request) {
     })
 
     // 3. Channel breakdown
-    const allChannels = ['DINE_IN', 'TAKEAWAY', 'ONLINE_ZOMATO', 'ONLINE_SWIGGY']
+    const allChannels = ['DINE_IN', 'TAKEAWAY']
     const channels = allChannels.map(type => {
       const group = channelGroups.find(g => g.orderType === type)
       return {

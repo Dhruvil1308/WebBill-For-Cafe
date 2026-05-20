@@ -2,10 +2,11 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { ReceiptText, UtensilsCrossed, BarChart3, Settings, Tag, ScrollText, Users } from 'lucide-react'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { useEffect } from 'react'
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -23,6 +24,13 @@ export const sidebarLinks = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  useEffect(() => {
+    sidebarLinks.forEach((link) => {
+      router.prefetch(link.href)
+    })
+  }, [router])
 
   return (
     <aside className="w-64 bg-white border-r border-border h-screen flex flex-col pt-6 hidden md:flex">
@@ -59,7 +67,6 @@ export function Sidebar() {
           </div>
           <div>
             <p className="text-sm font-medium text-gray-900">Cafe Owner</p>
-            <p className="text-xs text-gray-500">Free Plan</p>
           </div>
         </div>
       </div>

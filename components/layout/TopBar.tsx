@@ -2,12 +2,13 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Menu } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet'
 import { sidebarLinks } from './Sidebar'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { useEffect } from 'react'
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -15,6 +16,13 @@ function cn(...inputs: ClassValue[]) {
 
 export function TopBar() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  useEffect(() => {
+    sidebarLinks.forEach((link) => {
+      router.prefetch(link.href)
+    })
+  }, [router])
 
   return (
     <header className="h-16 bg-white border-b border-border flex items-center justify-between px-4 md:hidden">
@@ -62,7 +70,6 @@ export function TopBar() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">Cafe Owner</p>
-                  <p className="text-xs text-gray-500">Free Plan</p>
                 </div>
               </div>
             </div>

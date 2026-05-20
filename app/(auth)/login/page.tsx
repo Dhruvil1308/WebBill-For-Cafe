@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -16,6 +16,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  useEffect(() => {
+    router.prefetch('/billing')
+    router.prefetch('/superadmin')
+  }, [router])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
