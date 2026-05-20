@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Edit2, Trash2, Loader2, AlertTriangle, HelpCircle, Check, X } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, Loader2, AlertTriangle, HelpCircle, Check, X, UtensilsCrossed } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -310,7 +310,7 @@ export default function MenuManagementPage() {
       </div>
 
       {/* Control Console (Search & Category Tabs) */}
-      <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-gray-200 p-4 shadow-xs space-y-4">
+      <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-gray-200 p-4 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Real-time search */}
           <div className="relative flex-1 max-w-md">
@@ -350,96 +350,100 @@ export default function MenuManagementPage() {
             ))}
           </div>
         </div>
-
-        {/* Database List Table */}
-        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-xs">
-          {isLoading ? (
-            <div className="h-64 flex flex-col items-center justify-center text-gray-400 gap-3">
-              <Loader2 className="animate-spin text-violet-600" size={32} />
-              <p className="text-sm font-medium">Fetching catalog from database...</p>
-            </div>
-          ) : filteredItems.length === 0 ? (
-            <div className="h-64 flex flex-col items-center justify-center text-gray-400 p-6 text-center space-y-2">
-              <HelpCircle size={44} className="text-gray-300" />
-              <h3 className="font-semibold text-gray-700">No menu items found</h3>
-              <p className="text-xs max-w-xs">Try broadening your search criteria or select a different category filter.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead className="bg-gray-50/70 text-gray-500 font-bold border-b border-gray-100">
-                  <tr>
-                    <th className="px-6 py-3.5">Item Name</th>
-                    <th className="px-6 py-3.5">Category</th>
-                    <th className="px-6 py-3.5">Price</th>
-                    <th className="px-6 py-3.5">Status</th>
-                    <th className="px-6 py-3.5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 text-gray-950 font-medium">
-                  {filteredItems.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50/50 transition-colors group">
-                      <td className="px-6 py-4.5">
-                        <div className="flex items-center gap-2.5">
-                          {/* Veg/Non-veg Indicator */}
-                          <div className={`w-4 h-4 border flex items-center justify-center rounded-[3px] bg-white shrink-0 ${
-                            item.isVeg ? 'border-emerald-500' : 'border-rose-500'
-                          }`}>
-                            {item.isVeg ? (
-                              <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                            ) : (
-                              <div className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-b-[6px] border-b-rose-500" />
-                            )}
-                          </div>
-                          <span className="font-bold text-gray-900">{item.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4.5">
-                        <span className="inline-flex items-center bg-gray-100 text-gray-700 px-2.5 py-0.5 rounded-lg text-xs font-bold uppercase tracking-wider">
-                          {item.category?.name || 'Unassigned'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4.5 text-gray-900 font-bold">₹{Number(item.price).toFixed(2)}</td>
-                      <td className="px-6 py-4.5">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                          item.isAvailable 
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/50' 
-                            : 'bg-rose-50 text-rose-600 border border-rose-200/50'
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${
-                            item.isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
-                          }`} />
-                          {item.isAvailable ? 'Available' : 'Unavailable'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4.5 text-right">
-                        <div className="flex justify-end gap-1.5">
-                          <Button 
-                            variant="ghost" 
-                            size="icon-sm" 
-                            onClick={() => handleOpenEdit(item)}
-                            className="h-8 w-8 text-gray-500 hover:text-violet-600 hover:bg-violet-50/50 border-0 rounded-lg"
-                          >
-                            <Edit2 size={15} />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon-sm" 
-                            onClick={() => handleOpenDelete(item)}
-                            className="h-8 w-8 text-gray-500 hover:text-rose-600 hover:bg-rose-50/50 border-0 rounded-lg"
-                          >
-                            <Trash2 size={15} />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
       </div>
+
+      {/* Catalog Grid */}
+      {isLoading ? (
+        <div className="bg-white rounded-2xl border border-gray-100 p-12 flex flex-col items-center justify-center text-gray-400 gap-3 shadow-xs">
+          <Loader2 className="animate-spin text-violet-600" size={32} />
+          <p className="text-sm font-medium">Fetching catalog from database...</p>
+        </div>
+      ) : filteredItems.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-gray-100 p-12 flex flex-col items-center justify-center text-gray-400 text-center space-y-2 shadow-xs">
+          <HelpCircle size={44} className="text-gray-300" />
+          <h3 className="font-semibold text-gray-700">No menu items found</h3>
+          <p className="text-xs max-w-xs">Try broadening your search criteria or select a different category filter.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {filteredItems.map((item) => (
+            <div 
+              key={item.id} 
+              className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col group"
+            >
+              {/* Card Header (Image or Placeholder) */}
+              <div className="relative w-full h-40 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0 border-b border-gray-100">
+                {item.imageUrl ? (
+                  <img 
+                    src={item.imageUrl} 
+                    alt={item.name} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-violet-50 to-indigo-50 flex items-center justify-center">
+                    <UtensilsCrossed size={40} className="text-violet-200 group-hover:scale-110 transition-transform duration-300" />
+                  </div>
+                )}
+
+                {/* Badge Overlay */}
+                <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                  {/* Veg/Non-veg Indicator */}
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold shadow-xs bg-white border ${
+                    item.isVeg ? 'border-emerald-200 text-emerald-700' : 'border-rose-200 text-rose-700'
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${item.isVeg ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                    {item.isVeg ? 'VEG' : 'NON-VEG'}
+                  </span>
+                </div>
+
+                <div className="absolute top-3 right-3">
+                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-xs ${
+                    item.isAvailable 
+                      ? 'bg-emerald-500 text-white' 
+                      : 'bg-rose-500 text-white'
+                  }`}>
+                    {item.isAvailable ? 'In Stock' : 'Out of Stock'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Card Body */}
+              <div className="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-violet-600 bg-violet-50 px-2 py-0.5 rounded-md">
+                      {item.category?.name || 'Unassigned'}
+                    </span>
+                    <span className="text-base font-bold text-gray-900">₹{Number(item.price).toFixed(2)}</span>
+                  </div>
+                  <h3 className="font-bold text-gray-800 text-sm line-clamp-2 group-hover:text-violet-750 transition-colors">
+                    {item.name}
+                  </h3>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2 mt-4 pt-3 border-t border-gray-100 shrink-0">
+                  <Button 
+                    variant="outline"
+                    onClick={() => handleOpenEdit(item)}
+                    className="flex-1 h-9 rounded-xl text-xs font-bold border-gray-200 text-gray-600 hover:text-violet-600 hover:bg-violet-50/50 hover:border-violet-200 gap-1.5 active:scale-95 transition-all shadow-none"
+                  >
+                    <Edit2 size={13} />
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => handleOpenDelete(item)}
+                    className="h-9 w-9 rounded-xl p-0 border-gray-200 text-gray-500 hover:text-rose-600 hover:bg-rose-50/50 hover:border-rose-200 shrink-0 active:scale-95 transition-all shadow-none"
+                  >
+                    <Trash2 size={13} />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* ─── ADD MENU ITEM DIALOG ──────────────────────────────────── */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
