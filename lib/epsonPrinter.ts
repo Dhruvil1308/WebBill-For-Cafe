@@ -1,9 +1,11 @@
-// lib/epsonPrinter.ts
+// @ts-nocheck
+// ============================================================
+// DEPRECATED — lib/epsonPrinter.ts
+// This file is no longer used. Printing has been migrated to
+// lib/qzPrinter.ts which uses QZ Tray + Windows printer driver.
+// Kept for reference only. Do NOT import from this file.
+// ============================================================
 
-/**
- * Service to interface with the Epson ePOS JavaScript SDK for TM-T82x thermal printers.
- * Bypasses browser print dialog and sends XML commands over local IP network.
- */
 
 export interface PrintItem {
   name: string;

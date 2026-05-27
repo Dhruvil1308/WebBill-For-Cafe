@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Trash2, Plus, Minus, Printer, Store, ShoppingBag } from 'lucide-react'
 import { toast } from 'sonner'
 import type { OrderType, PaymentMethod } from '@/store/cartStore'
-import { printThermalReceipt, PrintBillData } from '@/lib/epsonPrinter'
+import { printWithQZTray, PrintBillData } from '@/lib/qzPrinter'
 import { format } from 'date-fns'
 
 export function CartPanel() {
@@ -69,13 +69,13 @@ export function CartPanel() {
 
       const savedBill = await res.json()
 
-      // 2. Check for Epson printer IP in local hardware config
-      const epsonIp = localStorage.getItem('epson_printer_ip')
+      // 2. Check for configured Windows printer name
+      const printerName = localStorage.getItem('qz_printer_name')
 
-      if (!epsonIp) {
+      if (!printerName) {
         // Bill saved but no printer configured — guide the user to settings
-        toast.warning('Bill saved! No Epson printer configured.', {
-          description: 'Go to Settings → Hardware Configuration and enter your printer IP address.',
+        toast.warning('Bill saved! No printer configured.', {
+          description: 'Go to Settings → Hardware Configuration and enter your Windows printer name (e.g. EPSON TM-T82).',
           duration: 8000,
           action: {
             label: 'Open Settings',
@@ -86,8 +86,8 @@ export function CartPanel() {
         return
       }
 
-      // 3. Attempt direct, silent thermal print via Epson ePOS SDK
-      toast.loading('Sending to Epson printer...', { id: 'epson-print' })
+      // 3. Attempt direct, silent thermal print via QZ Tray
+      toast.loading(`Printing to ${printerName}...`, { id: 'qz-print' })
 
       const printData: PrintBillData = {
         cafeName: cafeDetails?.name ?? 'WebBill Cafe',
@@ -113,15 +113,15 @@ export function CartPanel() {
         paymentMethod: payload.paymentMethod,
       }
 
-      const printResult = await printThermalReceipt(epsonIp, printData)
+      const printResult = await printWithQZTray(printerName, printData)
 
       if (printResult.success) {
-        toast.success('Receipt printed on Epson printer!', { id: 'epson-print' })
+        toast.success('Receipt printed!', { id: 'qz-print' })
       } else {
         toast.error(`Print failed: ${printResult.error}`, {
-          id: 'epson-print',
+          id: 'qz-print',
           duration: 10000,
-          description: 'Bill is saved. Check the printer IP in Settings → Hardware Configuration.',
+          description: 'Bill is saved. Ensure QZ Tray is running and the printer name is correct.',
           action: {
             label: 'Open Settings',
             onClick: () => (window.location.href = '/settings'),

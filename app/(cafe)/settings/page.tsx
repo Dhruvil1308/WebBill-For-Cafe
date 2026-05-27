@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Store, Phone, MapPin, Receipt, Loader2, Check, FileText, Printer } from 'lucide-react'
+import { Store, Phone, MapPin, Receipt, Loader2, Check, FileText, Printer, ExternalLink, CheckCircle2, AlertCircle } from 'lucide-react'
+import { printTestPage } from '@/lib/qzPrinter'
 import { toast } from 'sonner'
 
 export default function CafeSetupPage() {
@@ -10,7 +11,10 @@ export default function CafeSetupPage() {
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
   const [logoUrl, setLogoUrl] = useState('')
-  const [printerIp, setPrinterIp] = useState('')
+  const [printerName, setPrinterName] = useState('EPSON TM-T82')
+  const [isTestPrinting, setIsTestPrinting] = useState(false)
+  const [testPrintStatus, setTestPrintStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [testPrintError, setTestPrintError] = useState('')
   const [logoUploading, setLogoUploading] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -40,8 +44,8 @@ export default function CafeSetupPage() {
     }
     
     // Load local hardware settings
-    const savedIp = localStorage.getItem('epson_printer_ip')
-    if (savedIp) setPrinterIp(savedIp)
+    const savedName = localStorage.getItem('qz_printer_name')
+    if (savedName) setPrinterName(savedName)
     
     fetchCafe()
   }, [])
@@ -113,10 +117,10 @@ export default function CafeSetupPage() {
     }
     
     // Save local hardware settings
-    if (printerIp.trim()) {
-      localStorage.setItem('epson_printer_ip', printerIp.trim())
+    if (printerName.trim()) {
+      localStorage.setItem('qz_printer_name', printerName.trim())
     } else {
-      localStorage.removeItem('epson_printer_ip')
+      localStorage.removeItem('qz_printer_name')
     }
   }
 
@@ -362,24 +366,95 @@ export default function CafeSetupPage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-100 pb-2">
-              <div className="flex items-center gap-2 mb-4">
-                <Printer size={18} className="text-gray-400" />
+            <div className="pt-4 border-t border-gray-100 pb-2 space-y-4">
+              <div className="flex items-center gap-2">
+                <Printer size={18} className="text-violet-500" />
                 <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">Hardware Configuration</h3>
               </div>
-              
+
+              {/* QZ Tray info banner */}
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 space-y-2">
+                <p className="text-xs font-semibold text-blue-800">🖨️ Printing via QZ Tray</p>
+                <p className="text-[11px] text-blue-700 leading-relaxed">
+                  WebBill uses <strong>QZ Tray</strong> to send receipts directly to your Windows printer driver — no IP address needed.
+                  QZ Tray must be installed and running in your system tray.
+                </p>
+                <a
+                  href="https://qz.io/download/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  <ExternalLink size={12} />
+                  Download QZ Tray (free)
+                </a>
+              </div>
+
+              {/* Printer Name */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Epson Printer IP (Local Network)</label>
+                <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Windows Printer Name</label>
                 <div className="relative">
+                  <Printer className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                   <input
                     type="text"
-                    className="w-full h-10 px-3 rounded-xl border border-gray-200 transition-all duration-200 outline-none text-sm bg-gray-50 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
-                    placeholder="e.g. 192.168.1.100"
-                    value={printerIp}
-                    onChange={(e) => setPrinterIp(e.target.value)}
+                    className="w-full h-10 pl-10 pr-3 rounded-xl border border-gray-200 transition-all duration-200 outline-none text-sm bg-gray-50 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+                    placeholder="e.g. EPSON TM-T82"
+                    value={printerName}
+                    onChange={(e) => {
+                      setPrinterName(e.target.value)
+                      setTestPrintStatus('idle')
+                    }}
                   />
                 </div>
-                <p className="text-[11px] text-gray-400">If set, bills will automatically print to this IP via Epson ePOS SDK. Specific to this device.</p>
+                <p className="text-[11px] text-gray-400">
+                  Exact name from <strong>Windows Settings → Bluetooth &amp; devices → Printers &amp; scanners</strong>. Saved only on this device.
+                </p>
+              </div>
+
+              {/* Test Print Button */}
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  disabled={isTestPrinting || !printerName.trim()}
+                  onClick={async () => {
+                    setIsTestPrinting(true)
+                    setTestPrintStatus('idle')
+                    setTestPrintError('')
+                    // Save name first so test uses latest value
+                    localStorage.setItem('qz_printer_name', printerName.trim())
+                    const result = await printTestPage(printerName.trim())
+                    setIsTestPrinting(false)
+                    if (result.success) {
+                      setTestPrintStatus('success')
+                    } else {
+                      setTestPrintStatus('error')
+                      setTestPrintError(result.error ?? 'Unknown error')
+                    }
+                  }}
+                  className="flex items-center gap-2 px-4 h-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 active:scale-[0.98] disabled:opacity-60 disabled:scale-100 text-sm font-semibold text-gray-700 transition-all duration-150 shadow-xs cursor-pointer"
+                >
+                  {isTestPrinting ? (
+                    <><Loader2 size={14} className="animate-spin" /> Sending test page...</>
+                  ) : (
+                    <><Printer size={14} /> Send Test Print</>  
+                  )}
+                </button>
+
+                {testPrintStatus === 'success' && (
+                  <div className="flex items-center gap-2 text-emerald-600 text-[12px] font-semibold">
+                    <CheckCircle2 size={14} />
+                    Test page sent! Check your printer.
+                  </div>
+                )}
+                {testPrintStatus === 'error' && (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-rose-600 text-[12px] font-semibold">
+                      <AlertCircle size={14} />
+                      Print failed
+                    </div>
+                    <p className="text-[11px] text-rose-500 pl-5">{testPrintError}</p>
+                  </div>
+                )}
               </div>
             </div>
 

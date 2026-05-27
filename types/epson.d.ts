@@ -1,45 +1,29 @@
-// types/epson.d.ts
+// types/epson.d.ts — repurposed for QZ Tray ambient types
+// Migrated from Epson ePOS SDK to QZ Tray (Windows printer driver bridge)
+// Full QZ Tray API docs: https://qz.io/api/
 
-declare namespace epson {
-  class ePOSDevice {
-    constructor();
-    DEVICE_TYPE_PRINTER: any;
-    connect(ip: string, port: string | number, callback: (result: string) => void, options?: any): void;
-    createDevice(deviceId: string, deviceType: any, options: any, callback: (obj: any, code: string) => void): void;
-    deleteDevice(deviceObj: any, callback: (code: string) => void): void;
-    disconnect(): void;
-  }
-
-  class ePOSBuilder {
-    constructor();
-    addText(data: string): ePOSBuilder;
-    addTextLang(lang: string): ePOSBuilder;
-    addTextAlign(align: number): ePOSBuilder;
-    addTextSize(width: number, height: number): ePOSBuilder;
-    addTextSmooth(smooth: boolean): ePOSBuilder;
-    addTextDouble(width: boolean, height: boolean): ePOSBuilder;
-    addCut(type: number): ePOSBuilder;
-    addFeedLine(lines: number): ePOSBuilder;
-    addFeedPosition(pos: number): ePOSBuilder;
-    addImage(context: any, x: number, y: number, width: number, height: number, color: number, mode: number): ePOSBuilder;
-    toString(): string;
-    
-    // Constants
-    ALIGN_LEFT: number;
-    ALIGN_CENTER: number;
-    ALIGN_RIGHT: number;
-    CUT_NO_FEED: number;
-    CUT_FEED: number;
-    CUT_RESERVE: number;
-    COLOR_1: number;
-    COLOR_2: number;
-    COLOR_3: number;
-    COLOR_4: number;
-    MODE_MONO: number;
-    MODE_GRAY16: number;
-  }
+interface QZConfig {
+  printer: string;
+  [key: string]: any;
 }
 
-interface Window {
-  epson: typeof epson;
+interface QZPrintData {
+  type: 'raw' | 'pixel' | 'html';
+  format?: 'plain' | 'base64' | 'file' | 'hex';
+  data: string;
+  options?: Record<string, any>;
 }
+
+interface QZTray {
+  websocket: {
+    connect(options?: Record<string, any>): Promise<void>;
+    disconnect(): Promise<void>;
+    isActive(): boolean;
+  };
+  configs: {
+    create(printer: string, options?: Record<string, any>): QZConfig;
+  };
+  print(config: QZConfig, data: QZPrintData[]): Promise<void>;
+}
+
+declare const qz: QZTray;

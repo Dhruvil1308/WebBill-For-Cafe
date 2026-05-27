@@ -44,7 +44,11 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${plusJakartaSans.variable} font-body bg-white text-gray-900 antialiased`}
       >
-        <Script src="/epos-2.27.0.js" strategy="beforeInteractive" />
+        {/* QZ Tray: bridges browser → Windows printer driver (no IP needed) */}
+        <Script
+          src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"
+          strategy="beforeInteractive"
+        />
         {children}
         <Toaster position="top-center" richColors />
       </body>
