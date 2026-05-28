@@ -186,7 +186,7 @@ export default function BillsPage() {
         </div>
         <button
           onClick={fetchBills}
-          className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          className="flex items-center justify-center w-full sm:w-auto gap-2 px-3 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
         >
           <RefreshCw size={15} />
           Refresh

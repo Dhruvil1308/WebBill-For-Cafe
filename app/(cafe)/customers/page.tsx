@@ -215,7 +215,7 @@ export default function CustomersPage() {
         </div>
         <Button
           onClick={() => { setFormName(''); setFormPhone(''); setIsAddOpen(true) }}
-          className="bg-violet-600 hover:bg-violet-700 text-white gap-2 font-bold px-4 py-2 rounded-xl shadow-sm"
+          className="bg-violet-600 w-full sm:w-auto hover:bg-violet-700 text-white gap-2 font-bold px-4 py-2 rounded-xl shadow-sm"
         >
           <Plus size={18} /> Add Customer
         </Button>

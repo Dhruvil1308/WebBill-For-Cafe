@@ -251,7 +251,7 @@ export default function ExpensesPage() {
                 <label className="text-sm font-medium">Item Name <span className="text-red-500">*</span></label>
                 <Input name="itemName" value={formData.itemName} onChange={handleInputChange} required placeholder="e.g. Coffee Beans, Milk" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Quantity</label>
                   <Input name="quantity" type="number" min="1" step="0.01" value={formData.quantity} onChange={handleInputChange} required />
@@ -275,7 +275,7 @@ export default function ExpensesPage() {
                   </label>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Amount Paid</label>
                     <Input name="amountPaid" type="number" step="0.01" value={formData.amountPaid} onChange={handleInputChange} placeholder={((parseFloat(formData.quantity)||0) * (parseFloat(formData.price)||0)).toFixed(2)} />
@@ -287,7 +287,7 @@ export default function ExpensesPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Payment Method</label>
                   <select name="paymentMethod" value={formData.paymentMethod} onChange={handleInputChange} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
@@ -349,12 +349,12 @@ export default function ExpensesPage() {
       </div>
 
       <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-border flex items-center gap-4 bg-gray-50/50">
-          <div className="relative flex-1 max-w-sm">
+        <div className="p-4 border-b border-border flex flex-col sm:flex-row sm:items-center gap-4 bg-gray-50/50">
+          <div className="relative flex-1 w-full sm:max-w-sm">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
             <Input
               placeholder="Search expenses or vendors..."
-              className="pl-9 bg-white"
+              className="pl-9 bg-white w-full"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -475,7 +475,7 @@ export default function ExpensesPage() {
               <label className="text-sm font-medium">Item Name <span className="text-red-500">*</span></label>
               <Input name="itemName" value={formData.itemName} onChange={handleInputChange} required />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Quantity</label>
                 <Input name="quantity" type="number" min="1" step="0.01" value={formData.quantity} onChange={handleInputChange} required />
@@ -499,7 +499,7 @@ export default function ExpensesPage() {
                 </label>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Amount Paid</label>
                   <Input name="amountPaid" type="number" step="0.01" value={formData.amountPaid} onChange={handleInputChange} placeholder={((parseFloat(formData.quantity)||0) * (parseFloat(formData.price)||0)).toFixed(2)} />
@@ -511,7 +511,7 @@ export default function ExpensesPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Payment Method</label>
                 <select name="paymentMethod" value={formData.paymentMethod} onChange={handleInputChange} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
