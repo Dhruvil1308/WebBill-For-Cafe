@@ -52,7 +52,7 @@ export async function PUT(
 
     const { id } = await params
     const body = await req.json()
-    const { itemName, quantity, price, total, paymentMethod, paidTo, note, date } = body
+    const { itemName, quantity, price, total, amountPaid, isCleared, dueDate, paymentMethod, paidTo, note, date } = body
 
     // Verify expense belongs to this cafe
     const existingExpense = await prisma.expense.findFirst({
@@ -73,6 +73,9 @@ export async function PUT(
         quantity: quantity !== undefined ? quantity : existingExpense.quantity,
         price: price !== undefined ? parseFloat(price) : existingExpense.price,
         total: total !== undefined ? parseFloat(total) : existingExpense.total,
+        amountPaid: amountPaid !== undefined ? parseFloat(amountPaid) : existingExpense.amountPaid,
+        isCleared: isCleared !== undefined ? Boolean(isCleared) : existingExpense.isCleared,
+        dueDate: dueDate !== undefined ? (dueDate ? new Date(dueDate) : null) : existingExpense.dueDate,
         paymentMethod: paymentMethod || existingExpense.paymentMethod,
         paidTo: paidTo !== undefined ? paidTo?.trim() || null : existingExpense.paidTo,
         note: note !== undefined ? note?.trim() || null : existingExpense.note,

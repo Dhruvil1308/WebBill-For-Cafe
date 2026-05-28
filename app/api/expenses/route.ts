@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { itemName, quantity, price, total, paymentMethod, paidTo, note, date } = body
+    const { itemName, quantity, price, total, amountPaid, isCleared, dueDate, paymentMethod, paidTo, note, date } = body
 
     if (!itemName?.trim()) {
       return NextResponse.json({ error: 'Item name is required' }, { status: 400 })
@@ -45,6 +45,9 @@ export async function POST(req: Request) {
         quantity: quantity || 1,
         price: parseFloat(price),
         total: parseFloat(total),
+        amountPaid: amountPaid !== undefined ? parseFloat(amountPaid) : parseFloat(total),
+        isCleared: isCleared !== undefined ? Boolean(isCleared) : true,
+        dueDate: dueDate ? new Date(dueDate) : null,
         paymentMethod: paymentMethod || 'CASH',
         paidTo: paidTo?.trim() || null,
         note: note?.trim() || null,
