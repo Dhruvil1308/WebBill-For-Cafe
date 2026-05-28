@@ -56,6 +56,7 @@ model Cafe {
   menuItems   MenuItem[]
   bills       Bill[]
   customers   Customer[]
+  expenses    Expense[]
 }
 
 // ─── CATEGORY ─────────────────────────────────────────────────
@@ -162,4 +163,21 @@ model BillItem {
   price       Decimal  @db.Decimal(10, 2)
   variantName String?
   subtotal    Decimal  @db.Decimal(10, 2)
+}
+
+// ─── EXPENSE ──────────────────────────────────────────────────
+
+model Expense {
+  id            String        @id @default(uuid())
+  cafeId        String
+  cafe          Cafe          @relation(fields: [cafeId], references: [id])
+  itemName      String
+  quantity      Int           @default(1)
+  price         Decimal       @db.Decimal(10, 2)
+  total         Decimal       @db.Decimal(10, 2)
+  paymentMethod PaymentMethod @default(CASH)
+  paidTo        String?
+  note          String?
+  date          DateTime      @default(now())
+  createdAt     DateTime      @default(now())
 }

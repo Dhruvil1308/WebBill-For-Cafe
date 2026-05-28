@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { ReceiptText, UtensilsCrossed, BarChart3, Settings, Tag, ScrollText, Users } from 'lucide-react'
+import { ReceiptText, UtensilsCrossed, BarChart3, Settings, Tag, ScrollText, Users, Wallet } from 'lucide-react'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { useEffect } from 'react'
@@ -17,6 +17,7 @@ export const sidebarLinks = [
   { name: 'Menu', href: '/menu', icon: UtensilsCrossed },
   { name: 'Categories', href: '/categories', icon: Tag },
   { name: 'Bills', href: '/bills', icon: ScrollText },
+  { name: 'Expenses', href: '/expenses', icon: Wallet },
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Reports', href: '/reports/daily', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
