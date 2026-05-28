@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { ReceiptText, UtensilsCrossed, BarChart3, Settings, Tag, ScrollText, Users, Wallet } from 'lucide-react'
+import { ReceiptText, UtensilsCrossed, BarChart3, Settings, Tag, ScrollText, Users, Wallet, LogOut } from 'lucide-react'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { useEffect } from 'react'
@@ -62,7 +62,7 @@ export function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-border">
-        <div className="flex items-center gap-3 px-3 py-2">
+        <div className="flex items-center gap-3 px-3 py-2 mb-2">
           <div className="w-8 h-8 rounded-full bg-violet-200 flex items-center justify-center text-violet-700 font-bold text-sm">
             C
           </div>
@@ -70,6 +70,18 @@ export function Sidebar() {
             <p className="text-sm font-medium text-gray-900">Cafe Owner</p>
           </div>
         </div>
+        <button
+          onClick={async () => {
+            const { createClient } = await import('@/lib/supabase');
+            const supabase = createClient();
+            await supabase.auth.signOut();
+            window.location.href = '/login';
+          }}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+        >
+          <LogOut size={18} />
+          Log Out
+        </button>
       </div>
     </aside>
   )
