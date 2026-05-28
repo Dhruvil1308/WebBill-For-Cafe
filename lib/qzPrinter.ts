@@ -216,6 +216,25 @@ async function ensureConnected(): Promise<void> {
       'QZ Tray script not loaded. Please refresh the page.'
     );
   }
+
+  // Setup security to allow "Remember this decision"
+  qz.security.setCertificatePromise((resolve: any, reject: any) => {
+    fetch('/api/qz-cert', { cache: 'no-store' })
+      .then(res => res.text())
+      .then(resolve)
+      .catch(reject);
+  });
+
+  qz.security.setSignatureAlgorithm("SHA512");
+  qz.security.setSignaturePromise((toSign: string) => {
+    return (resolve: any, reject: any) => {
+      fetch('/api/qz-sign?request=' + encodeURIComponent(toSign), { cache: 'no-store' })
+        .then(res => res.text())
+        .then(resolve)
+        .catch(reject);
+    };
+  });
+
   if (!qz.websocket.isActive()) {
     await qz.websocket.connect();
   }
