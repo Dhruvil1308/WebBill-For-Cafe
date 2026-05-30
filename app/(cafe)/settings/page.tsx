@@ -12,6 +12,7 @@ export default function CafeSetupPage() {
   const [address, setAddress] = useState('')
   const [logoUrl, setLogoUrl] = useState('')
   const [isGstEnabled, setIsGstEnabled] = useState(true)
+  const [isReceiptEnabled, setIsReceiptEnabled] = useState(true)
   const [printerName, setPrinterName] = useState('EPSON TM-T82')
   const [isTestPrinting, setIsTestPrinting] = useState(false)
   const [testPrintStatus, setTestPrintStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -34,6 +35,7 @@ export default function CafeSetupPage() {
           setAddress(data.address || '')
           setLogoUrl(data.logoUrl || '')
           setIsGstEnabled(data.isGstEnabled ?? true)
+          setIsReceiptEnabled(data.isReceiptEnabled ?? true)
         } else {
           toast.error('Failed to load cafe details')
         }
@@ -103,6 +105,7 @@ export default function CafeSetupPage() {
           address: cleanAddress || null,
           logoUrl: logoUrl || null,
           isGstEnabled,
+          isReceiptEnabled,
         })
       })
       
@@ -330,6 +333,38 @@ export default function CafeSetupPage() {
                 <input type="checkbox" className="sr-only peer" checked={isGstEnabled} onChange={(e) => setIsGstEnabled(e.target.checked)} />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
               </label>
+            </div>
+
+            {/* Receipt Needed */}
+            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl bg-gray-50/50">
+              <div className="space-y-0.5">
+                <label className="text-sm font-bold text-gray-900 tracking-wide">Receipt Needed?</label>
+                <p className="text-[11px] text-gray-500">When enabled, bills will be sent to your thermal printer automatically.</p>
+              </div>
+              <div className="flex bg-white border border-gray-200 p-0.5 rounded-xl shadow-xs">
+                <button
+                  type="button"
+                  onClick={() => setIsReceiptEnabled(true)}
+                  className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-150 ${
+                    isReceiptEnabled
+                      ? 'bg-violet-600 text-white shadow-sm'
+                      : 'text-gray-500 hover:text-gray-800'
+                  }`}
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsReceiptEnabled(false)}
+                  className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-150 ${
+                    !isReceiptEnabled
+                      ? 'bg-violet-600 text-white shadow-sm'
+                      : 'text-gray-500 hover:text-gray-800'
+                  }`}
+                >
+                  No
+                </button>
+              </div>
             </div>
 
             {/* Address */}

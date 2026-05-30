@@ -16,7 +16,9 @@ export function CartPanel() {
 
   const [cafeDetails, setCafeDetails] = useState<any>(null)
   const [isCheckingOut, setIsCheckingOut] = useState(false)
-  const [receiptNeeded, setReceiptNeeded] = useState(true)
+
+  // Derived from DB setting — no local state needed
+  const receiptNeeded = cafeDetails?.isReceiptEnabled ?? true
 
   // Fetch active cafe details on mount for branding on printed bills
   useEffect(() => {
@@ -292,27 +294,13 @@ export function CartPanel() {
           <label className="text-xs font-semibold text-gray-700">
             Receipt Needed?
           </label>
-          <div className="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
-            <button
-              onClick={() => setReceiptNeeded(true)}
-              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
-                receiptNeeded 
-                  ? 'bg-white text-violet-700 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Yes
-            </button>
-            <button
-              onClick={() => setReceiptNeeded(false)}
-              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
-                !receiptNeeded 
-                  ? 'bg-white text-violet-700 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              No
-            </button>
+          <div className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold border ${
+            receiptNeeded 
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
+              : 'bg-gray-100 border-gray-200 text-gray-500'
+          }`}>
+            {receiptNeeded ? <Printer size={11} /> : null}
+            {receiptNeeded ? 'Yes — will print' : 'No receipt'}
           </div>
         </div>
 

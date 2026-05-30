@@ -22,7 +22,7 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json()
-    const { name, address, phone, gstNumber, logoUrl, isGstEnabled } = body
+    const { name, address, phone, gstNumber, logoUrl, isGstEnabled, isReceiptEnabled } = body
 
     if (!name?.trim()) {
       return NextResponse.json({ error: 'Cafe name is required' }, { status: 400 })
@@ -36,7 +36,8 @@ export async function PUT(request: Request) {
         phone: phone?.trim() || null,
         gstNumber: gstNumber?.trim() || null,
         logoUrl: logoUrl || null,
-        isGstEnabled: isGstEnabled ?? true
+        isGstEnabled: isGstEnabled ?? true,
+        isReceiptEnabled: isReceiptEnabled ?? true,
       }
     })
 

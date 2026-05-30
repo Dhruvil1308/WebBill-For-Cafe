@@ -48,7 +48,8 @@ model Cafe {
   address     String?
   phone       String?
   gstNumber   String?
-  isGstEnabled Boolean @default(true)
+  isGstEnabled    Boolean @default(true)
+  isReceiptEnabled Boolean @default(true)
   logoUrl     String?
   currency    String      @default("INR")
   createdAt   DateTime    @default(now())
