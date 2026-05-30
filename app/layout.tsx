@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Plus_Jakarta_Sans, Inter } from 'next/font/google'
+import { Hanken_Grotesk, Inter } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
 import { Toaster } from 'sonner'
@@ -9,20 +9,18 @@ import { Toaster } from 'sonner'
 // - preload: true hints to the browser to fetch this font early
 // - Only latin subset reduces font file size
 const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-body',
-  display: 'swap',
-  preload: true,
-  weight: ['400', '500', '600'],
-})
+  subsets:  ["latin"],
+  variable: "--font-inter",
+  display:  "swap",
+  weight:   ["300", "400", "500", "600", "700", "800", "900"],
+});
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  variable: '--font-headings',
-  display: 'swap',
-  preload: false, // Secondary font — no need to block for it
-  weight: ['600', '700', '800'],
-})
+const hanken = Hanken_Grotesk({
+  subsets:  ["latin"],
+  variable: "--font-hanken",
+  display:  "swap",
+  weight:   ["400", "500", "600", "700", "800", "900"],
+});
 
 export const metadata: Metadata = {
   title: 'WebBill — Smart Billing for Cafes',
@@ -45,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${plusJakartaSans.variable} font-body bg-white text-gray-900 antialiased`}
+        className={`${inter.variable} ${hanken.variable} font-sans bg-white text-gray-900 antialiased`}
       >
         {/* QZ Tray: bridges browser → Windows printer driver (no IP needed) */}
         <Script
