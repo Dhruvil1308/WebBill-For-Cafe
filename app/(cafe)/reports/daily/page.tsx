@@ -105,7 +105,7 @@ export default function ReportsDashboard() {
         if (range === 'custom') {
           url += `&startDate=${startDate}&endDate=${endDate}`
         }
-        const res = await fetch(url)
+        const res = await fetch(url, { cache: 'no-store' })
         if (res.ok) {
           const stats = await res.json()
           setData(stats)

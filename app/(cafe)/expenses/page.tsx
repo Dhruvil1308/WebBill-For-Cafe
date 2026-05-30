@@ -71,7 +71,7 @@ export default function ExpensesPage() {
 
   const fetchExpenses = async () => {
     try {
-      const res = await fetch('/api/expenses')
+      const res = await fetch('/api/expenses', { cache: 'no-store' })
       if (!res.ok) throw new Error('Failed to fetch expenses')
       const data = await res.json()
       setExpenses(data)

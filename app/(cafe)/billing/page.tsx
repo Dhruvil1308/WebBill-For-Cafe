@@ -18,8 +18,7 @@ export default function BillingPage() {
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
 
   useEffect(() => {
-    // No cache-busting — let the browser and Vercel Edge Cache do their job
-    fetch('/api/categories')
+    fetch('/api/categories', { cache: 'no-store' })
       .then((res) => res.ok ? res.json() : null)
       .then((data) => {
         if (data) setCategories(['All', ...data.map((cat: any) => cat.name)])

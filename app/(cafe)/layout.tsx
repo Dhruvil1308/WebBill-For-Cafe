@@ -1,7 +1,16 @@
+import { redirect } from 'next/navigation'
+import { getActiveCafe } from '@/lib/auth'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
 
-export default function CafeLayout({ children }: { children: React.ReactNode }) {
+export const dynamic = 'force-dynamic'
+
+export default async function CafeLayout({ children }: { children: React.ReactNode }) {
+  const activeCafeResult = await getActiveCafe()
+  if (!activeCafeResult) {
+    redirect('/login')
+  }
+
   return (
     <div className="flex h-screen bg-accent overflow-hidden">
       <Sidebar />

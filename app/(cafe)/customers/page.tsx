@@ -69,7 +69,7 @@ export default function CustomersPage() {
       setIsLoading(true)
       const params = new URLSearchParams()
       if (search) params.set('search', search)
-      const res = await fetch(`/api/customers?${params.toString()}`)
+      const res = await fetch(`/api/customers?${params.toString()}`, { cache: 'no-store' })
       if (res.ok) setCustomers(await res.json())
       else toast.error('Failed to load customers')
     } catch {

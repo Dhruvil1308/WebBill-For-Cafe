@@ -37,33 +37,10 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Short-lived cache for read-heavy, rarely-changing API endpoints
+      // Auth-scoped API responses must never be shared or persisted by proxies/browsers.
       {
-        source: '/api/menu-items',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, s-maxage=30, stale-while-revalidate=60',
-          },
-        ],
-      },
-      {
-        source: '/api/categories',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, s-maxage=60, stale-while-revalidate=120',
-          },
-        ],
-      },
-      // Never cache mutation endpoints
-      {
-        source: '/api/bills',
-        headers: [{ key: 'Cache-Control', value: 'no-store' }],
-      },
-      {
-        source: '/api/reports/:path*',
-        headers: [{ key: 'Cache-Control', value: 'no-store' }],
+        source: '/api/:path*',
+        headers: [{ key: 'Cache-Control', value: 'no-store, max-age=0, must-revalidate' }],
       },
     ];
   },
