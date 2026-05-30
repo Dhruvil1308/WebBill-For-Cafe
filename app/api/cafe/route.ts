@@ -41,6 +41,14 @@ export async function PUT(request: Request) {
       }
     })
 
+    // Get the user ID to invalidate the cache
+    const { getAuthSession } = await import('@/lib/auth')
+    const user = await getAuthSession()
+    if (user) {
+      const { revalidateTag } = await import('next/cache')
+      revalidateTag(`cafe-session-${user.id}`)
+    }
+
     return NextResponse.json(updatedCafe)
   } catch (error: any) {
     console.error('Error updating cafe details:', error)
