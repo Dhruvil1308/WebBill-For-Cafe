@@ -9,12 +9,14 @@ import { toast } from 'sonner'
 import type { OrderType, PaymentMethod } from '@/store/cartStore'
 import { printWithQZTray, PrintBillData } from '@/lib/qzPrinter'
 import { format } from 'date-fns'
+import confetti from 'canvas-confetti'
 
 export function CartPanel() {
   const cart = useCartStore()
 
   const [cafeDetails, setCafeDetails] = useState<any>(null)
   const [isCheckingOut, setIsCheckingOut] = useState(false)
+  const [receiptNeeded, setReceiptNeeded] = useState(true)
 
   // Fetch active cafe details on mount for branding on printed bills
   useEffect(() => {
@@ -70,6 +72,19 @@ export function CartPanel() {
 
       const savedBill = await res.json()
 
+      if (!receiptNeeded) {
+        // Just save to db, show confetti and skip printing
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#7c3aed', '#10b981', '#f59e0b', '#3b82f6'],
+        })
+        toast.success('Bill saved successfully!')
+        cart.clearCart()
+        return
+      }
+
       // 2. Check for configured Windows printer name
       const printerName = localStorage.getItem('qz_printer_name')
 
@@ -118,6 +133,12 @@ export function CartPanel() {
 
       if (printResult.success) {
         toast.success('Receipt printed!', { id: 'qz-print' })
+        confetti({
+          particleCount: 100,
+          spread: 60,
+          origin: { y: 0.6 },
+          colors: ['#7c3aed', '#10b981', '#3b82f6'],
+        })
       } else {
         toast.error(`Print failed: ${printResult.error}`, {
           id: 'qz-print',
@@ -267,13 +288,41 @@ export function CartPanel() {
           ))}
         </div>
 
+        <div className="flex items-center justify-between px-1 py-1">
+          <label className="text-xs font-semibold text-gray-700">
+            Receipt Needed?
+          </label>
+          <div className="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
+            <button
+              onClick={() => setReceiptNeeded(true)}
+              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                receiptNeeded 
+                  ? 'bg-white text-violet-700 shadow-sm' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Yes
+            </button>
+            <button
+              onClick={() => setReceiptNeeded(false)}
+              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                !receiptNeeded 
+                  ? 'bg-white text-violet-700 shadow-sm' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              No
+            </button>
+          </div>
+        </div>
+
         <Button
           className="w-full bg-violet-700 hover:bg-violet-800 text-base font-bold h-12 rounded-xl shadow-sm transition-all"
           disabled={cart.items.length === 0 || isCheckingOut}
           onClick={handleCheckout}
         >
-          <Printer className="mr-2" size={20} />
-          {isCheckingOut ? 'Printing...' : 'Print Bill'}
+          {receiptNeeded ? <Printer className="mr-2" size={20} /> : <Store className="mr-2" size={20} />}
+          {isCheckingOut ? (receiptNeeded ? 'Printing...' : 'Saving...') : (receiptNeeded ? 'Print Bill' : 'Save Order')}
         </Button>
       </div>
     </div>
