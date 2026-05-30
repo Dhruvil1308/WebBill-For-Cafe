@@ -16,24 +16,25 @@ export function CartPanel() {
 
   const [cafeDetails, setCafeDetails] = useState<any>(null)
   const [isCheckingOut, setIsCheckingOut] = useState(false)
-  const [receiptNeeded, setReceiptNeeded] = useState(true)
+
+  // Derive from fetched db setting
+  const receiptNeeded = cafeDetails?.isReceiptEnabled ?? true
 
   // Fetch active cafe details on mount for branding on printed bills
   useEffect(() => {
-    async function fetchCafe() {
+    async function fetchCafeDetails() {
       try {
         const res = await fetch('/api/cafe')
         if (res.ok) {
           const data = await res.json()
           setCafeDetails(data)
           cart.setIsGstEnabled(data.isGstEnabled ?? true)
-          setReceiptNeeded(data.isReceiptEnabled ?? true)
         }
       } catch (err) {
         console.error('Error fetching cafe details:', err)
       }
     }
-    fetchCafe()
+    fetchCafeDetails()
   }, [])
 
   const handleCheckout = async () => {
@@ -289,36 +290,8 @@ export function CartPanel() {
           ))}
         </div>
 
-        <div className="flex items-center justify-between px-1 py-1">
-          <label className="text-xs font-semibold text-gray-700">
-            Receipt Needed?
-          </label>
-          <div className="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
-            <button
-              onClick={() => setReceiptNeeded(true)}
-              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
-                receiptNeeded 
-                  ? 'bg-white text-violet-700 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Yes
-            </button>
-            <button
-              onClick={() => setReceiptNeeded(false)}
-              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
-                !receiptNeeded 
-                  ? 'bg-white text-violet-700 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              No
-            </button>
-          </div>
-        </div>
-
         <Button
-          className="w-full bg-violet-700 hover:bg-violet-800 text-base font-bold h-12 rounded-xl shadow-sm transition-all"
+          className="w-full bg-violet-700 hover:bg-violet-800 text-base font-bold h-12 rounded-xl shadow-sm transition-all mt-4"
           disabled={cart.items.length === 0 || isCheckingOut}
           onClick={handleCheckout}
         >
