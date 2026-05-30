@@ -107,14 +107,18 @@ export const ThermalReceipt = forwardRef<HTMLDivElement, ThermalReceiptProps>(
             <span>Subtotal</span>
             <span>{subtotal.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between">
-            <span>CGST (2.5%)</span>
-            <span>{(gstAmount / 2).toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>SGST (2.5%)</span>
-            <span>{(gstAmount / 2).toFixed(2)}</span>
-          </div>
+          {gstAmount > 0 && (
+            <>
+              <div className="flex justify-between">
+                <span>CGST (2.5%)</span>
+                <span>{(gstAmount / 2).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>SGST (2.5%)</span>
+                <span>{(gstAmount / 2).toFixed(2)}</span>
+              </div>
+            </>
+          )}
           <div className="flex justify-between font-bold text-[16px] border-t border-black border-dashed mt-1 pt-1">
             <span>Total ₹</span>
             <span>{total.toFixed(2)}</span>

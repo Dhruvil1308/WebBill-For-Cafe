@@ -241,7 +241,7 @@ export default function ExpensesPage() {
           <DialogTrigger render={<Button className="bg-violet-600 hover:bg-violet-700 text-white shadow-sm" />}>
             <Plus className="mr-2 h-4 w-4" /> Add Expense
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[500px] max-h-[90dvh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Expense</DialogTitle>
               <DialogDescription>Record a new purchase or outgoing payment.</DialogDescription>
@@ -465,7 +465,7 @@ export default function ExpensesPage() {
 
       {/* Edit Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Expense</DialogTitle>
             <DialogDescription>Update the details of this expense.</DialogDescription>

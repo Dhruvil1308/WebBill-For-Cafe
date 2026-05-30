@@ -28,6 +28,9 @@ export const metadata: Metadata = {
   title: 'WebBill — Smart Billing for Cafes',
   description:
     'Fast, minimal, multi-tenant POS and Billing system for cafes and small restaurants.',
+  icons: {
+    icon: '/favicon_webbill_image.png',
+  },
   robots: {
     index: false, // Private SaaS app — keep out of search engines
     follow: false,

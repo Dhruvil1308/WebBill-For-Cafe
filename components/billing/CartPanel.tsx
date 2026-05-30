@@ -24,6 +24,7 @@ export function CartPanel() {
         if (res.ok) {
           const data = await res.json()
           setCafeDetails(data)
+          cart.setIsGstEnabled(data.isGstEnabled ?? true)
         }
       } catch (err) {
         console.error('Error fetching cafe details:', err)
@@ -237,10 +238,12 @@ export function CartPanel() {
             <span>Subtotal</span>
             <span className="font-medium">₹{cart.getSubtotal().toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-gray-600">
-            <span>GST (5%)</span>
-            <span className="font-medium">₹{cart.getGST().toFixed(2)}</span>
-          </div>
+          {cart.isGstEnabled && (
+            <div className="flex justify-between text-gray-600">
+              <span>GST (5%)</span>
+              <span className="font-medium">₹{cart.getGST().toFixed(2)}</span>
+            </div>
+          )}
           <div className="flex justify-between font-bold text-lg text-gray-900 border-t border-gray-200 pt-2 mt-2">
             <span>Total</span>
             <span className="text-violet-700">₹{cart.getTotal().toFixed(2)}</span>

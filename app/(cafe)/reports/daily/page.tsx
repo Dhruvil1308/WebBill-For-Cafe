@@ -76,7 +76,9 @@ interface TimelineItem {
 const COLORS = ['#8B5CF6', '#10B981', '#3B82F6', '#F59E0B']
 
 export default function ReportsDashboard() {
-  const [range, setRange] = useState<'today' | '7days' | 'overall'>('today')
+  const [range, setRange] = useState<'today' | '7days' | 'overall' | 'custom'>('today')
+  const [startDate, setStartDate] = useState<string>('')
+  const [endDate, setEndDate] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const [isMounted, setIsMounted] = useState(false)
   const [data, setData] = useState<{
@@ -96,9 +98,14 @@ export default function ReportsDashboard() {
 
   useEffect(() => {
     async function fetchStats() {
+      if (range === 'custom' && (!startDate || !endDate)) return
       try {
         setIsLoading(true)
-        const res = await fetch(`/api/reports/stats?range=${range}`)
+        let url = `/api/reports/stats?range=${range}`
+        if (range === 'custom') {
+          url += `&startDate=${startDate}&endDate=${endDate}`
+        }
+        const res = await fetch(url)
         if (res.ok) {
           const stats = await res.json()
           setData(stats)
@@ -115,7 +122,7 @@ export default function ReportsDashboard() {
     if (isMounted) {
       fetchStats()
     }
-  }, [range, isMounted])
+  }, [range, startDate, endDate, isMounted])
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -222,7 +229,39 @@ export default function ReportsDashboard() {
             >
               Overall
             </button>
+            <button
+              onClick={() => setRange('custom')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                range === 'custom'
+                  ? 'bg-violet-600 text-white shadow-xs'
+                  : 'text-gray-600 hover:text-gray-950 hover:bg-gray-50'
+              }`}
+            >
+              Custom
+            </button>
           </div>
+          {range === 'custom' && (
+            <div className="absolute right-0 top-full mt-2 p-3 bg-white border border-gray-200 rounded-xl shadow-lg z-10 flex flex-col gap-2 min-w-[200px]">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-500 uppercase">Start Date</label>
+                <input 
+                  type="date" 
+                  value={startDate} 
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200 outline-none focus:border-violet-500"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-gray-500 uppercase">End Date</label>
+                <input 
+                  type="date" 
+                  value={endDate} 
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full text-sm px-2 py-1.5 rounded-md border border-gray-200 outline-none focus:border-violet-500"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

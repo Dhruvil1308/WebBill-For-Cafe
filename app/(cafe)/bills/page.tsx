@@ -327,7 +327,7 @@ export default function BillsPage() {
 
       {/* BILL DETAIL DRAWER */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-lg border border-gray-100 rounded-2xl shadow-xl bg-white p-0 overflow-hidden">
+        <DialogContent className="max-w-lg border border-gray-100 rounded-2xl shadow-xl bg-white p-0 overflow-hidden max-h-[90dvh] overflow-y-auto">
           <DialogHeader className="p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
               <div>
@@ -450,7 +450,7 @@ export default function BillsPage() {
 
       {/* CANCEL CONFIRMATION */}
       <Dialog open={isCancelOpen} onOpenChange={setIsCancelOpen}>
-        <DialogContent className="sm:max-w-sm border border-gray-100 rounded-2xl shadow-xl p-6 bg-white">
+        <DialogContent className="sm:max-w-sm border border-gray-100 rounded-2xl shadow-xl p-6 bg-white max-h-[90dvh] overflow-y-auto">
           <DialogHeader className="pb-2 border-b border-gray-100 flex flex-col items-center text-center">
             <div className="w-12 h-12 bg-rose-50 border border-rose-200 rounded-full flex items-center justify-center text-rose-500 mb-3">
               <AlertTriangle size={22} />

@@ -17,6 +17,7 @@ interface CartStore {
   customerPhone: string
   orderType: OrderType
   paymentMethod: PaymentMethod
+  isGstEnabled: boolean
   addItem: (item: CartItem) => void
   removeItem: (menuItemId: string) => void
   updateQty: (menuItemId: string, qty: number) => void
@@ -24,6 +25,7 @@ interface CartStore {
   setCustomer: (name: string, phone: string) => void
   setOrderType: (type: OrderType) => void
   setPaymentMethod: (method: PaymentMethod) => void
+  setIsGstEnabled: (enabled: boolean) => void
   getSubtotal: () => number
   getGST: () => number
   getTotal: () => number
@@ -37,6 +39,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
   customerPhone: '',
   orderType: 'DINE_IN',
   paymentMethod: 'CASH',
+  isGstEnabled: true,
 
   addItem: (item) =>
     set((state) => {
@@ -70,13 +73,14 @@ export const useCartStore = create<CartStore>((set, get) => ({
   setCustomer: (name, phone) => set({ customerName: name, customerPhone: phone }),
   setOrderType: (type) => set({ orderType: type }),
   setPaymentMethod: (method) => set({ paymentMethod: method }),
+  setIsGstEnabled: (enabled) => set({ isGstEnabled: enabled }),
 
   getSubtotal: () => {
     return get().items.reduce((sum, item) => sum + item.price * item.quantity, 0)
   },
 
   getGST: () => {
-    return get().getSubtotal() * DEFAULT_GST_RATE
+    return get().isGstEnabled ? get().getSubtotal() * DEFAULT_GST_RATE : 0
   },
 
   getTotal: () => {

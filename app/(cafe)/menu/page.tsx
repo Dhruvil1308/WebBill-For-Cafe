@@ -447,7 +447,7 @@ export default function MenuManagementPage() {
 
       {/* ─── ADD MENU ITEM DIALOG ──────────────────────────────────── */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="sm:max-w-md border border-gray-100 rounded-2xl shadow-xl p-6 bg-white animate-in zoom-in-95 duration-150">
+        <DialogContent className="sm:max-w-md border border-gray-100 rounded-2xl shadow-xl p-6 bg-white animate-in zoom-in-95 duration-150 max-h-[90dvh] overflow-y-auto">
           <DialogHeader className="pb-2 border-b border-gray-100">
             <DialogTitle className="text-lg font-bold text-gray-900">Add Menu Item</DialogTitle>
             <DialogDescription className="text-gray-500 text-xs mt-1">
@@ -622,7 +622,7 @@ export default function MenuManagementPage() {
 
       {/* ─── EDIT MENU ITEM DIALOG ──────────────────────────────────── */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-md border border-gray-100 rounded-2xl shadow-xl p-6 bg-white animate-in zoom-in-95 duration-150">
+        <DialogContent className="sm:max-w-md border border-gray-100 rounded-2xl shadow-xl p-6 bg-white animate-in zoom-in-95 duration-150 max-h-[90dvh] overflow-y-auto">
           <DialogHeader className="pb-2 border-b border-gray-100">
             <DialogTitle className="text-lg font-bold text-gray-900">Edit Menu Item</DialogTitle>
             <DialogDescription className="text-gray-500 text-xs mt-1">
@@ -800,7 +800,7 @@ export default function MenuManagementPage() {
 
       {/* ─── DOUBLE-CONFIRMATION DELETE DIALOG ────────────────────────── */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <DialogContent className="sm:max-w-md border border-gray-100 rounded-2xl shadow-xl p-6 bg-white animate-in zoom-in-95 duration-150">
+        <DialogContent className="sm:max-w-md border border-gray-100 rounded-2xl shadow-xl p-6 bg-white animate-in zoom-in-95 duration-150 max-h-[90dvh] overflow-y-auto">
           <DialogHeader className="pb-2 border-b border-gray-100 flex flex-col items-center text-center">
             <div className="w-12 h-12 bg-rose-50 border border-rose-200 rounded-full flex items-center justify-center text-rose-500 mb-3 animate-bounce duration-1000">
               <AlertTriangle size={24} />

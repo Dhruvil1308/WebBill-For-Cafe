@@ -352,7 +352,7 @@ export default function CustomersPage() {
 
       {/* ADD DIALOG */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="sm:max-w-sm border border-gray-100 rounded-2xl shadow-xl p-6 bg-white">
+        <DialogContent className="sm:max-w-sm border border-gray-100 rounded-2xl shadow-xl p-6 bg-white max-h-[90dvh] overflow-y-auto">
           <DialogHeader className="pb-2 border-b border-gray-100">
             <DialogTitle className="text-lg font-bold">Add Customer</DialogTitle>
             <DialogDescription className="text-xs text-gray-500 mt-1">
@@ -393,7 +393,7 @@ export default function CustomersPage() {
 
       {/* EDIT DIALOG */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-sm border border-gray-100 rounded-2xl shadow-xl p-6 bg-white">
+        <DialogContent className="sm:max-w-sm border border-gray-100 rounded-2xl shadow-xl p-6 bg-white max-h-[90dvh] overflow-y-auto">
           <DialogHeader className="pb-2 border-b border-gray-100">
             <DialogTitle className="text-lg font-bold">Edit Customer</DialogTitle>
             <DialogDescription className="text-xs text-gray-500 mt-1">Update name or phone number.</DialogDescription>
@@ -430,7 +430,7 @@ export default function CustomersPage() {
 
       {/* DETAIL DIALOG */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-lg border border-gray-100 rounded-2xl shadow-xl bg-white p-0 overflow-hidden">
+        <DialogContent className="max-w-lg border border-gray-100 rounded-2xl shadow-xl bg-white p-0 overflow-hidden max-h-[90dvh] overflow-y-auto">
           <DialogHeader className="p-6 border-b border-gray-100">
             <DialogTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
               <UserCircle size={20} className="text-violet-600" />
@@ -489,7 +489,7 @@ export default function CustomersPage() {
 
       {/* DELETE DIALOG */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <DialogContent className="sm:max-w-sm border border-gray-100 rounded-2xl shadow-xl p-6 bg-white">
+        <DialogContent className="sm:max-w-sm border border-gray-100 rounded-2xl shadow-xl p-6 bg-white max-h-[90dvh] overflow-y-auto">
           <DialogHeader className="pb-2 border-b border-gray-100 flex flex-col items-center text-center">
             <div className="w-12 h-12 bg-rose-50 border border-rose-200 rounded-full flex items-center justify-center text-rose-500 mb-3">
               <AlertTriangle size={22} />

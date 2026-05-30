@@ -14,6 +14,7 @@ export async function GET(req: Request) {
     const range = searchParams.get('range') || 'today'
 
     let startDate: Date | undefined = undefined
+    let endDate: Date | undefined = undefined
     const now = new Date()
 
     if (range === 'today') {
@@ -21,12 +22,25 @@ export async function GET(req: Request) {
     } else if (range === '7days') {
       startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
       startDate.setHours(0, 0, 0, 0)
+    } else if (range === 'custom') {
+      const startParam = searchParams.get('startDate')
+      const endParam = searchParams.get('endDate')
+      if (startParam && endParam) {
+        startDate = new Date(startParam)
+        startDate.setHours(0, 0, 0, 0)
+        endDate = new Date(endParam)
+        endDate.setHours(23, 59, 59, 999)
+      }
     }
 
-    const billWhere = {
+    const billWhere: any = {
       cafeId: cafe.id,
       status: 'PAID' as const,
-      ...(startDate ? { createdAt: { gte: startDate } } : {}),
+    }
+    if (startDate && endDate) {
+      billWhere.createdAt = { gte: startDate, lte: endDate }
+    } else if (startDate) {
+      billWhere.createdAt = { gte: startDate }
     }
 
     // --- Run all independent DB queries in parallel ---

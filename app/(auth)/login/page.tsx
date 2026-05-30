@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Loader2, Mail, Lock, Eye, EyeOff, Coffee, TrendingUp, CreditCard, Zap, BarChart2, Printer } from 'lucide-react'
 import { toast } from 'sonner'
+import { createBrowserClient } from '@supabase/ssr'
 import { createClient } from '@/lib/supabase'
 import InteractiveBackground from './InteractiveBackground'
 
@@ -33,6 +34,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading,  setLoading]  = useState(false)
   const [showPass, setShowPass] = useState(false)
+  const [rememberMe, setRememberMe] = useState(true)
   const [mounted,  setMounted]  = useState(false)
 
   const router   = useRouter()
@@ -51,7 +53,19 @@ export default function LoginPage() {
     if (!email || !password) return toast.error('Please enter email and password')
 
     setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    
+    // Recreate client to inject dynamic cookie options based on remember me
+    const loginSupabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookieOptions: {
+          maxAge: rememberMe ? 30 * 24 * 60 * 60 : undefined,
+        }
+      }
+    )
+
+    const { error } = await loginSupabase.auth.signInWithPassword({ email, password })
 
     if (error) {
       toast.error(error.message)
@@ -336,6 +350,20 @@ export default function LoginPage() {
                     {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+              </div>
+
+              {/* Remember Me */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="remember"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500 cursor-pointer"
+                />
+                <label htmlFor="remember" className="text-xs text-gray-600 cursor-pointer select-none">
+                  Remember me for 30 days
+                </label>
               </div>
 
               {/* Submit */}

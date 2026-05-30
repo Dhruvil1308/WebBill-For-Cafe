@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, memo } from 'react'
 import { useCartStore } from '@/store/cartStore'
 
 interface MenuItem {
@@ -21,8 +21,62 @@ interface MenuGridProps {
   searchQuery?: string
 }
 
+const MenuItemCard = memo(function MenuItemCard({ item }: { item: MenuItem }) {
+  const qty = useCartStore(state => {
+    const inCart = state.items.find((i) => i.menuItemId === item.id)
+    return inCart ? inCart.quantity : 0
+  })
+  const addItem = useCartStore(state => state.addItem)
+  const updateQty = useCartStore(state => state.updateQty)
+  const price = Number(item.price)
+
+  return (
+    <div
+      onClick={() => {
+        if (qty > 0) {
+          updateQty(item.id, qty + 1)
+        } else {
+          addItem({ menuItemId: item.id, name: item.name, price, quantity: 1 })
+        }
+      }}
+      className="bg-white border text-center border-border rounded-xl p-3 cursor-pointer hover:shadow-sm transition-shadow relative overflow-hidden flex flex-col active:scale-[0.98] transform duration-100"
+    >
+      {qty > 0 && (
+        <div className="absolute top-2 right-2 bg-violet-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold z-10 shadow-sm animate-in zoom-in">
+          {qty}
+        </div>
+      )}
+      <div className="aspect-square bg-violet-50/50 rounded-lg mb-3 mt-auto flex items-center justify-center relative overflow-hidden">
+        <div
+          className={`absolute top-2 left-2 w-3 h-3 rounded-sm border flex items-center justify-center z-10 ${
+            item.isVeg ? 'border-green-600 bg-white' : 'border-red-600 bg-white'
+          }`}
+        >
+          <div
+            className={`w-1.5 h-1.5 rounded-full ${
+              item.isVeg ? 'bg-green-600' : 'bg-red-600'
+            }`}
+          />
+        </div>
+
+        {item.imageUrl ? (
+          <img
+            src={item.imageUrl}
+            alt={item.name}
+            className="w-full h-full object-cover mix-blend-multiply"
+            loading="lazy"
+          />
+        ) : (
+          <span className="text-violet-200 font-medium text-sm">Image</span>
+        )}
+      </div>
+      <h3 className="font-medium text-sm text-gray-900 truncate">{item.name}</h3>
+      <p className="text-violet-700 font-bold mt-1">₹{price}</p>
+    </div>
+  )
+})
+
 export function MenuGrid({ category = 'All', searchQuery = '' }: MenuGridProps) {
-  const { items: cartItems, addItem, updateQty } = useCartStore()
   const [allItems, setAllItems] = useState<MenuItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -80,57 +134,9 @@ export function MenuGrid({ category = 'All', searchQuery = '' }: MenuGridProps) 
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-20 md:pb-0">
-      {filteredItems.map((item) => {
-        const inCart = cartItems.find((i) => i.menuItemId === item.id)
-        const qty = inCart ? inCart.quantity : 0
-        const price = Number(item.price)
-
-        return (
-          <div
-            key={item.id}
-            onClick={() => {
-              if (qty > 0) {
-                updateQty(item.id, qty + 1)
-              } else {
-                addItem({ menuItemId: item.id, name: item.name, price, quantity: 1 })
-              }
-            }}
-            className="bg-white border text-center border-border rounded-xl p-3 cursor-pointer hover:shadow-sm transition-shadow relative overflow-hidden flex flex-col active:scale-[0.98] transform duration-100"
-          >
-            {qty > 0 && (
-              <div className="absolute top-2 right-2 bg-violet-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold z-10 shadow-sm animate-in zoom-in">
-                {qty}
-              </div>
-            )}
-            <div className="aspect-square bg-violet-50/50 rounded-lg mb-3 mt-auto flex items-center justify-center relative overflow-hidden">
-              <div
-                className={`absolute top-2 left-2 w-3 h-3 rounded-sm border flex items-center justify-center z-10 ${
-                  item.isVeg ? 'border-green-600 bg-white' : 'border-red-600 bg-white'
-                }`}
-              >
-                <div
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    item.isVeg ? 'bg-green-600' : 'bg-red-600'
-                  }`}
-                />
-              </div>
-
-              {item.imageUrl ? (
-                <img
-                  src={item.imageUrl}
-                  alt={item.name}
-                  className="w-full h-full object-cover mix-blend-multiply"
-                  loading="lazy"
-                />
-              ) : (
-                <span className="text-violet-200 font-medium text-sm">Image</span>
-              )}
-            </div>
-            <h3 className="font-medium text-sm text-gray-900 truncate">{item.name}</h3>
-            <p className="text-violet-700 font-bold mt-1">₹{price}</p>
-          </div>
-        )
-      })}
+      {filteredItems.map((item) => (
+        <MenuItemCard key={item.id} item={item} />
+      ))}
 
       {filteredItems.length === 0 && !loading && (
         <div className="col-span-full py-12 text-center text-gray-500">
