@@ -21,8 +21,8 @@ export async function getActiveCafe() {
 
   try {
     // The Prisma DB lookup is cached per-user for 60 seconds.
-    // This eliminates a full round-trip to Supabase Postgres on every API call,
-    // replacing it with an in-memory cache hit for the duration of the cache window.
+    // CRITICAL: cache key MUST include email so each user has their own isolated cache.
+    // Using only ['active-cafe'] would share the cache across ALL users (data leak!).
     const getCachedCafeData = unstable_cache(
       async (email: string) => {
         const client = await prisma.client.findUnique({
@@ -41,10 +41,10 @@ export async function getActiveCafe() {
 
         return { client, cafe: client.cafe }
       },
-      ['active-cafe'],   // Base cache key prefix
+      [`active-cafe-${user.email}`],  // Per-user cache key — NEVER share this
       {
-        revalidate: 60,  // Re-validate from DB once per minute
-        tags: [`cafe-session-${user.id}`], // Allows manual invalidation
+        revalidate: 60,
+        tags: [`cafe-session-${user.id}`],
       }
     )
 

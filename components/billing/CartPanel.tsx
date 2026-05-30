@@ -24,14 +24,17 @@ export function CartPanel() {
   useEffect(() => {
     async function fetchCafeDetails() {
       try {
-        const res = await fetch('/api/cafe')
+        const res = await fetch('/api/cafe', { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
           setCafeDetails(data)
           cart.setIsGstEnabled(data.isGstEnabled ?? true)
+        } else {
+          toast.error('Failed to load cafe details. Please refresh the page.')
         }
       } catch (err) {
         console.error('Error fetching cafe details:', err)
+        toast.error('Connection error. Please check your internet and refresh.')
       }
     }
     fetchCafeDetails()
