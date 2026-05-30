@@ -19,7 +19,7 @@ interface Category {
   sortOrder: number
   isActive: boolean
   createdAt: string
-  _count?: { menuItems: number }
+  _count?: { items: number }
 }
 
 export default function CategoriesPage() {
@@ -275,7 +275,7 @@ export default function CategoriesPage() {
                     {/* Item Count */}
                     <td className="px-6 py-4 text-center">
                       <span className="inline-flex items-center justify-center bg-violet-50 text-violet-700 px-2.5 py-0.5 rounded-lg text-xs font-bold">
-                        {cat._count?.menuItems ?? 0} items
+                        {cat._count?.items ?? 0} items
                       </span>
                     </td>
 
