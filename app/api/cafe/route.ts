@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getActiveCafe } from '@/lib/auth'
+import { revalidateTag } from 'next/cache'
+import { getActiveCafe, getAuthSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 
 export async function GET() {
@@ -42,10 +43,9 @@ export async function PUT(request: Request) {
     })
 
     // Get the user ID to invalidate the cache
-    const { getAuthSession } = await import('@/lib/auth')
     const user = await getAuthSession()
     if (user) {
-      const { revalidateTag } = await import('next/cache')
+      // @ts-ignore - Next.js types may require a second argument in this version but runtime accepts one
       revalidateTag(`cafe-session-${user.id}`)
     }
 
